@@ -7,6 +7,7 @@ call plug#begin('~/.vim-plugged')
 Plug 'dracula/vim', { 'as': 'dracula' }
 Plug 'axvr/photon.vim', { 'as' : 'photon' }
 Plug 'morhetz/gruvbox'
+Plug 'widatama/vim-phoenix'
 
 " выравнивание теста по разделителю
 Plug 'godlygeek/tabular'
@@ -44,17 +45,39 @@ nnoremap <leader>r :REPLToggle<Cr>
 "   c.ZMQTerminalInteractiveShell.include_other_output = True
 "Plug 'jupyter-vim/jupyter-vim'
 
+let g:pymode_rope = 1
+let g:pymode_indent = 1
+let g:pymode_options_max_line_length = 120
+let g:pymode_run_bind = '<Leader>pr'
+let g:pymode_breakpoint_bind = '<Leader>pb'
+let g:pymode_rope_regenerate_on_write = 0
+let g:pymode_rope_completion = 1
+let g:pymode_rope_complete_on_dot = 0
+let g:pymode_rope_show_doc_bind = '<Leader>pd'
+let g:pymode_rope_goto_definition_bind = '<Leader>pg'
+let g:pymode_rope_goto_definition_cmd = 'e'
+"let g:pymode_rope_rename_bind = '<leader>pr'
+"let g:pymode_rope_module_to_package_bind = '<leader>p1p'
+"let g:pymode_rope_extract_method_bind = '<leader>pm'
+"let g:pymode_rope_extract_variable_bind = '<leader>pl'
+"let g:pymode_rope_use_function_bind = '<leader>pu'
+"let g:pymode_rope_move_bind = '<leader>pv'
+"let g:pymode_rope_change_signature_bind = '<leader>ps'
 Plug 'python-mode/python-mode', { 'for': 'python', 'branch': 'develop' }
 let g:pymode_options_max_line_length = 120
-
-" автодополнение с помощью Tab
-Plug 'ervandew/supertab'
 
 " Работа с git
 Plug 'tpope/vim-fugitive'
 
 " радужные скобки
 Plug 'kien/rainbow_parentheses.vim'
+
+autocmd Syntax clojure RainbowParenthesesLoadRound
+autocmd Syntax clojure RainbowParenthesesLoadSquare
+"autocmd VimEnter RainbowParenthesesToggle
+"autocmd BufEnter *.clj RainbowParenthesesToggle
+"autocmd BufLeave *.clj RainbowParenthesesToggle
+nmap <Leader>( :RainbowParenthesesToggle<CR>
 
 " работа с таблицами
 Plug 'dhruvasagar/vim-table-mode'
@@ -98,6 +121,12 @@ let g:UltiSnipsJumpBackwardTrigger="<c-z>"
 " синтаксис yaml
 Plug 'stephpy/vim-yaml'
 
+" vue
+Plug 'leafOfTree/vim-vue-plugin'
+
+" мультикурсоры
+Plug 'terryma/vim-multiple-cursors'
+
 call plug#end()
 " }}}
 " определяем операционную систему {{{
@@ -107,28 +136,33 @@ else
     let g:os = substitute(system("uname"),"\n","","")
 endif
 " }}}
-"
+
 " внешний вид {{{
+" true color terminal
+if exists('+termguicolors')
+    let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
+    let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
+    set termguicolors
+endif
 " цветовая схема
 set background=dark
-" выключаем наклонный и жирный текст
-" let g:solarized_italic = 0
-" let g:solarized_bold = 0
 
 if $TERM == "xterm-mono"
     colorscheme default
 else
-    let g:dracula_bold = 0
-    let g:dracula_italic = 0
+    "let g:dracula_bold = 0
+    "let g:dracula_italic = 0
     "colorscheme dracula
     "colorscheme photon
-    colorscheme gruvbox
+    "colorscheme gruvbox
+    colorscheme phoenix
 endif
 
 " подсветка синтаксиса
 syntax on
 " выравнивание кода 
-filetype plugin indent on
+filetype plugin on
+filetype indent on
 if exists('&modelineexpr')
     " если есть возможность отключения выражений в modeline, отключаем их (это
     " поведение по умолчанию)
@@ -144,13 +178,6 @@ set number
 set cursorline
 " показывать парные скобки
 set showmatch
-" Настройка радужных скобок
-autocmd Syntax clojure RainbowParenthesesLoadRound
-autocmd Syntax clojure RainbowParenthesesLoadSquare
-"autocmd VimEnter RainbowParenthesesToggle
-"autocmd BufEnter *.clj RainbowParenthesesToggle
-"autocmd BufLeave *.clj RainbowParenthesesToggle
-nmap <Leader>( :RainbowParenthesesToggle<CR>
 " размер табуляции - 4 пробела
 set tabstop=4
 " заменять табуляции пробелами для всех файлов, кроме Makefile
@@ -172,12 +199,6 @@ if &term =~ "xterm" || &term =~ "screen"
     let &t_SI .= "\<Esc>[5 q"
     " blinking block
     let &t_EI .= "\<Esc>[1 q"
-endif
-" true color terminal
-if exists('+termguicolors')
-    let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
-    let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
-    set termguicolors
 endif
 " }}}
 " поиск {{{
@@ -204,7 +225,7 @@ let g:markdown_folding=1
 let g:markdown_foldlevel=0
 function! MyFoldText()
     let line = substitute(getline(v:foldstart),'{'.'{'.'{','','')
-"    let num_lines = (v:foldend - v:foldstart + 1) . ' lines'
+    "    let num_lines = (v:foldend - v:foldstart + 1) . ' lines'
     return line . ' '
 endfunction
 set foldtext=MyFoldText()
@@ -212,15 +233,11 @@ set foldtext=MyFoldText()
 " поведение {{{
 " обновлять свап-файл каждые 10 строк (а не 200, как по умолчанию)
 set updatecount=10
-" текущий каталог будет автоматически меняться при открытии файла, смене буффера и т.п.
-"set oautochdir
 " комбинация для открытия файла из текущего каталога
 nnoremap <Leader>e :e <C-R>=expand('%:p:h') . '/'<CR>
 " комбинация для смены текущего каталога на каталог, в котором лежит файл из
 " открытого буфера
 nnoremap <Leader>cd :lcd %:p:h<CR>:pwd<CR>
-" хоткей для команды :find
-nnoremap <Leader>f :find 
 " следующее переназначение позволяет оставаться в визуальном режими при
 " интердации выделенного блока с помощью < и >
 vnoremap < <gv
@@ -243,8 +260,8 @@ cnoremap <M-f> <S-Right>
 " поиск слова под курсором по исходникам
 nnoremap <F3> yiw:vimgrep /<C-r>0/ **/*
 " переход между окнами
-nnoremap <Tab> <C-w>w
-nnoremap <S-Tab> <C-w>W
+"nnoremap <Tab> <C-w>w
+"nnoremap <S-Tab> <C-w>W
 " устанавливаем программу, вызываемую при выполнении команды make (нужно во FreeBSD)
 if g:os == "FreeBSD"
     set makeprg=gmake
@@ -260,6 +277,8 @@ set grepprg=rg\ --vimgrep\ --no-heading\ --smart-case
 set wildmenu
 " отступы для javascript
 autocmd FileType javascript setlocal ts=3 sts=3 sw=3
+" отступы для vue
+autocmd FileType vue setlocal ts=2 sts=2 sw=2
 " }}}
 " локализация {{{
 " добавить русскую раскладку (переключение по ctrl+^)
@@ -269,18 +288,6 @@ set iminsert=0
 set imsearch=0
 " бирюзовый курсор при включенной русской раскладке
 highlight lCursor guifg=NONE guibg=Cyan cterm=none ctermfg=none ctermbg=214
-" }}}
-" шифрование {{{
-" устанавливаем метод шифрования по умолчанию
-set cryptmethod=blowfish2
-" }}}
-" настройка сохранения файлов undo {{{
-" " файлы для отката изменений будем хранить в отдельном каталоге
-" if has('persistent_undo')
-"     set undolevels=5000
-"     set undodir=$HOME/.vim_undo
-"     set undofile
-" endif
 " }}}
 " сохранение файла с sudo {{{
 " Let :w!! gain sudo privileges without closing and reopening vim

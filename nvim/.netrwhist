@@ -1,0 +1,12 @@
+let g:netrw_dirhistmax  =10
+let g:netrw_dirhistcnt =1
+let g:netrw_dirhist_1='/usr/home/undume/Clojure/InProduction/simple-server-01/src'
+let g:netrw_dirhist_0='/usr/home/undume/Clojure/InProduction/simple-server-01'
+let g:netrw_dirhist_9='/usr/home/undume/Clojure/InProduction'
+let g:netrw_dirhist_8='/usr/home/undume/Clojure'
+let g:netrw_dirhist_7='/usr/home/undume'
+let g:netrw_dirhist_6='/usr/home/undume/DotFiles/nvim'
+let g:netrw_dirhist_5='/usr/home/undume/.config'
+let g:netrw_dirhist_4='/usr/home/undume/.config/nvim-qt'
+let g:netrw_dirhist_3='/usr/home/undume/.config'
+let g:netrw_dirhist_2='/usr/home/undume/.config/nvim-qt'
